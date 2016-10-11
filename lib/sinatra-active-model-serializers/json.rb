@@ -12,9 +12,12 @@ module Sinatra
       options[:root] = options[:root].nil?
       begin
         options[:root] =
-          if options[:root].is_a?(Boolean) && options[:root] == false
+          if options[:root].is_a?(FalseClass)
             false
-          elsif object.is_a?(Mongoid::Criteria)
+          elsif defined?(Mongoid) && object.is_a?(Mongoid::Criteria)
+            options[:each_serializer] = options[:serializer]
+            object.first.class.name.underscore.pluralize if options[:root] == true
+          elsif defined?(ActiveRecord) && object.is_a?(ActiveRecord::Relation)
             options[:each_serializer] = options[:serializer]
             object.first.class.name.underscore.pluralize if options[:root] == true
           end
